@@ -7,7 +7,11 @@ load_dotenv()
 MONGO_URL = os.getenv("MONGO_URL", "mongodb+srv://holykingdom:holykingdom123@holykingdom.hdhgjxk.mongodb.net/")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "holykingdom")
 
-client = AsyncIOMotorClient(MONGO_URL)
+client = AsyncIOMotorClient(
+    MONGO_URL,
+    tls=True,
+    tlsAllowInvalidCertificates=True
+)
 db = client[DATABASE_NAME]
 
 async def get_database():
