@@ -11,7 +11,12 @@ app = FastAPI(title="Holy Kingdom School API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://holykingdomfffff.vercel.app", "http://localhost:3000"],
+    allow_origins=[
+        "https://holykingdomfffff.vercel.app", 
+        "https://www.holykingdom.in",
+        "https://holykingdom.in",
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
