@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
+import certifi
 
 load_dotenv()
 
@@ -10,7 +11,8 @@ DATABASE_NAME = os.getenv("DATABASE_NAME", "holykingdom")
 client = AsyncIOMotorClient(
     MONGO_URL,
     tls=True,
-    tlsAllowInvalidCertificates=True
+    tlsAllowInvalidCertificates=True,
+    tlsCAFile=certifi.where()
 )
 db = client[DATABASE_NAME]
 
