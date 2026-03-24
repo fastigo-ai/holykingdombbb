@@ -1,18 +1,29 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from db import tc_collection
-from cloudinary_config import upload_pdf
+from cloudinary_config import upload_pdf, delete_file_from_cloudinary
 import datetime
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import os
+from bson import ObjectId
 
 router = APIRouter(prefix="/tc", tags=["Transfer Certificate"])
 
 class TCRecord(BaseModel):
+    id: str
     admission_no: str
     student_name: str
     issue_date: str
     document_url: str
+
+@router.get("", response_model=List[dict])
+async def list_tcs():
+    tcs = []
+    cursor = tc_collection.find({})
+    async for tc in cursor:
+        tc["_id"] = str(tc["_id"])
+        tcs.append(tc)
+    return tcs
 
 @router.get("/{admission_no}")
 async def get_tc(admission_no: str):
@@ -22,6 +33,25 @@ async def get_tc(admission_no: str):
     # Convert MongoDB _id to string
     tc["_id"] = str(tc["_id"])
     return tc
+
+@router.delete("/{tc_id}")
+@router.delete("/{tc_id}/")
+async def delete_tc(tc_id: str):
+    try:
+        obj_id = ObjectId(tc_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid TC ID format")
+    
+    tc_record = await tc_collection.find_one({"_id": obj_id})
+    if not tc_record:
+        raise HTTPException(status_code=404, detail="TC record not found")
+        
+    document_url = tc_record.get("document_url")
+    if document_url:
+        delete_file_from_cloudinary(document_url)
+        
+    result = await tc_collection.delete_one({"_id": obj_id})
+    return {"message": "TC deleted successfully"}
 
 @router.post("/upload")
 async def upload_tc(
