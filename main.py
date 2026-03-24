@@ -7,11 +7,11 @@ from routes import tc, gallery, auth
 load_dotenv()
 
 app = FastAPI(title="Holy Kingdom School API")
-
+origins = ["https://www.holykingdom.in"]
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://holykingdom.in"],
+    allow_origins=origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
